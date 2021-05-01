@@ -1,10 +1,58 @@
-# DISCALIMER: The configuration file is a work in progress and is subject to change.
+# DISCLAIMER: The configuration file is a work in progress and is subject to change.
 
-Logid uses a standard libconfig-style config file stored in `/etc/logid.cfg` by default (although you launch logid with the -c option to change it).
+Logid uses a standard libconfig-style config file stored in `/etc/logid.cfg` by default (although you launch logid with the -c option to change it). You can find general information about the libconfig-style on the [libconfig project page](https://hyperrealm.github.io/libconfig/libconfig_manual.html#Configuration-Files).
 
-For a sample config, see [logid.example.cfg](https://github.com/PixlOne/logiops/blob/master/logid.example.cfg).
+For a sample logid config, see [logid.example.cfg](https://github.com/PixlOne/logiops/blob/master/logid.example.cfg).
 
 `:` and `=` are used for defining variables and are interchangeable. (e.g. `name: "foo";` is the same as `name = "foo";`)
+
+# Configuration process
+
+The most convenient way to configure logid is to run it interactively in debug mode. First, stop any running logid processes, for instance:
+
+```
+sudo systemctl stop logid
+```
+
+Then run logid manually in verbose mode:
+```
+sudo logid -v
+```
+
+This will print some information about the supported devices and their capabilities:
+```
+[DEBUG] Unsupported device ... ignored
+[INFO] Device found: Wireless Mouse MX Master 3 on /dev/hidraw4:255
+[DEBUG] /dev/hidraw4:255 remappable buttons:
+[DEBUG] CID  | reprog? | fn key? | mouse key? | gesture support?
+[DEBUG] 0x50 |         |         | YES        |
+[DEBUG] 0x51 |         |         | YES        |
+[DEBUG] 0x52 | YES     |         | YES        | YES
+[DEBUG] 0x53 | YES     |         | YES        | YES
+[DEBUG] 0x56 | YES     |         | YES        | YES
+[DEBUG] 0xc3 | YES     |         | YES        | YES
+[DEBUG] 0xc4 | YES     |         | YES        | YES
+[DEBUG] 0xd7 | YES     |         |            | YES
+[DEBUG] Thumb wheel detected (0x2150), capabilities:
+[DEBUG] timestamp | touch | proximity | single tap
+[DEBUG] YES       | YES   | YES       | YES
+[DEBUG] Thumb wheel resolution: native (18), diverted (120)
+```
+
+The most important parts are:
+* the name (```Wireless Mouse MX Master 3``` in the example)
+* the supported CID's
+* the capabilities
+
+You can guess the CID of your actual buttons using the [CID table](https://github.com/PixlOne/logiops/wiki/CIDs).
+
+The first step is to set the device name in the configuration file. Then you can start the configuration iterations:
+* modify the configuration file
+* kill the process with ```CTRL-C```
+* restart the process (```sudo logid -v```)
+* check for any error message, in particular about syntax errors in the config file
+* test your changes
+* repeat until happy
 
 # Ignoring Devices
 Devices can be ignored from being detected and used in logid. To ignore a device, create a field called `ignore` as an array of the PIDs of the devices you want to ignore.
